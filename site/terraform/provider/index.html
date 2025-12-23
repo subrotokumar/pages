@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../aws/">
+        <link rel="prev" href="../terraform/">
       
       
-        <link rel="next" href="../../system_design/database/">
+        <link rel="next" href="../aws/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Index - Pages</title>
+        <title>Provider - Pages</title>
       
     
     
@@ -111,6 +111,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#what-is-a-terraform-provider" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -140,7 +145,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Index
+              Provider
             
           </span>
         </div>
@@ -441,10 +446,35 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../provider/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -460,6 +490,125 @@
   
 
       </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-a-terraform-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is a Terraform Provider?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What is a Terraform Provider?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-level-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-level Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#terraform-core-version-vs-provider-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terraform Core Version vs Provider Version
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-provider-version-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Provider Version Matters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-constraints-in-terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Constraints in Terraform
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version Constraints in Terraform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-version-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Version Operators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-provider-version-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Provider Version Constraint
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -542,8 +691,6 @@
                 
   
   
-    
-  
   
   
     
@@ -565,15 +712,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_5" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="./" class="md-nav__link md-nav__link--active">
+            <a href="../azure/" class="md-nav__link ">
               
   
   
@@ -592,7 +739,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -931,6 +1078,114 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-a-terraform-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is a Terraform Provider?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What is a Terraform Provider?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-level-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-level Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#terraform-core-version-vs-provider-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terraform Core Version vs Provider Version
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-provider-version-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Provider Version Matters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-constraints-in-terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Constraints in Terraform
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version Constraints in Terraform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-version-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Version Operators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-provider-version-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Provider Version Constraint
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -984,24 +1239,6 @@
   
 
       
-        
-  
-  
-    
-    
-      <li class="md-path__item">
-        <a href="./" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    Azure
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
     </ol>
   </nav>
 
@@ -1010,9 +1247,125 @@
                 
                   
 
-  <h1>Index</h1>
+  <h1>Provider</h1>
 
-
+<h2 id="what-is-a-terraform-provider">What is a Terraform Provider?<a class="headerlink" href="#what-is-a-terraform-provider" title="Permanent link">&para;</a></h2>
+<p>A <strong>Terraform provider</strong> is a plugin that allows Terraform to interact with cloud platforms, SaaS services, or any third-party APIs to provision and manage infrastructure.</p>
+<p>Providers are responsible for:
+- Authenticating with the target platform
+- Translating Terraform configurations into API calls
+- Managing the lifecycle of resources (create, read, update, delete)</p>
+<h3 id="high-level-architecture">High-level Architecture<a class="headerlink" href="#high-level-architecture" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>flowchart LR
+    A[Terraform Core] --&gt; B[Terraform Registry]
+    A --&gt; C[Provider Plugin]
+    C --&gt; D[Cloud / Third-Party APIs]</code></pre>
+<hr />
+<h2 id="terraform-core-version-vs-provider-version">Terraform Core Version vs Provider Version<a class="headerlink" href="#terraform-core-version-vs-provider-version" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Terraform Core</strong></p>
+</li>
+<li>
+<p>The Terraform CLI and engine</p>
+</li>
+<li>
+<p>Handles state management, dependency graph, and execution plan</p>
+</li>
+<li>
+<p><strong>Provider</strong></p>
+</li>
+<li>
+<p>Independent plugins maintained separately</p>
+</li>
+<li>Each provider has its own version lifecycle</li>
+<li>Must be compatible with the Terraform Core version</li>
+</ul>
+<blockquote>
+<p>Terraform Core and Providers are versioned <strong>independently</strong>, but compatibility matters.</p>
+</blockquote>
+<hr />
+<h2 id="why-provider-version-matters">Why Provider Version Matters<a class="headerlink" href="#why-provider-version-matters" title="Permanent link">&para;</a></h2>
+<p>Using correct provider versions ensures:</p>
+<ul>
+<li>Stability and predictable behavior</li>
+<li>Access to new resources and features</li>
+<li>Bug fixes and security patches</li>
+<li>Avoidance of breaking changes</li>
+</ul>
+<p>Problems caused by incorrect versions:</p>
+<ul>
+<li>Breaking schema changes</li>
+<li>Deprecated or removed resources</li>
+<li>Incompatible APIs</li>
+<li>Failed plans or applies</li>
+</ul>
+<hr />
+<h2 id="version-constraints-in-terraform">Version Constraints in Terraform<a class="headerlink" href="#version-constraints-in-terraform" title="Permanent link">&para;</a></h2>
+<p>Terraform allows you to restrict provider versions using <strong>version constraints</strong>.</p>
+<h3 id="common-version-operators">Common Version Operators<a class="headerlink" href="#common-version-operators" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>=</code></td>
+<td>Exact version</td>
+</tr>
+<tr>
+<td><code>!=</code></td>
+<td>Exclude a version</td>
+</tr>
+<tr>
+<td><code>&gt;</code></td>
+<td>Greater than</td>
+</tr>
+<tr>
+<td><code>&gt;=</code></td>
+<td>Greater than or equal</td>
+</tr>
+<tr>
+<td><code>&lt;</code></td>
+<td>Less than</td>
+</tr>
+<tr>
+<td><code>&lt;=</code></td>
+<td>Less than or equal</td>
+</tr>
+<tr>
+<td><code>~&gt;</code></td>
+<td>Pessimistic constraint (recommended)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-provider-version-constraint">Example: Provider Version Constraint<a class="headerlink" href="#example-provider-version-constraint" title="Permanent link">&para;</a></h3>
+<div class="language-hcl highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">terraform</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nb">required_providers</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nb">aws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">      </span><span class="na">source</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;hashicorp/aws&quot;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">      </span><span class="na">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;~&gt; 5.0&quot;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>🔹 <code>~&gt; 5.0</code> allows:</p>
+<ul>
+<li><code>5.0.x</code>, <code>5.1.x</code>, <code>5.9.x</code></li>
+<li>❌ Not <code>6.0.0</code></li>
+</ul>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Always pin provider versions</li>
+<li>Use <code>~&gt;</code> for safe upgrades</li>
+<li>Lock versions using <code>terraform.lock.hcl</code></li>
+<li>Test provider upgrades in non-production environments</li>
+<li>Track provider changelogs before upgrading</li>
+</ul>
 
 
 
@@ -1052,7 +1405,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../aws/" class="md-footer__link md-footer__link--prev" aria-label="Previous: AWS">
+          <a href="../terraform/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Terraform">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
@@ -1062,20 +1415,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                AWS
+                Terraform
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../system_design/database/" class="md-footer__link md-footer__link--next" aria-label="Next: Index">
+          <a href="../aws/" class="md-footer__link md-footer__link--next" aria-label="Next: AWS">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Index
+                AWS
               </div>
             </div>
             <div class="md-footer__button md-icon">

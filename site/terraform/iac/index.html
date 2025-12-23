@@ -13,10 +13,8 @@
       
       
       
-        <link rel="prev" href="../aws/">
       
-      
-        <link rel="next" href="../../system_design/database/">
+        <link rel="next" href="../terraform/">
       
       
         
@@ -27,7 +25,7 @@
     
     
       
-        <title>Index - Pages</title>
+        <title>Infrastructure as Code - Pages</title>
       
     
     
@@ -111,6 +109,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#infrastructure-as-code" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -140,7 +143,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Index
+              Infrastructure as Code
             
           </span>
         </div>
@@ -228,7 +231,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../iac/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   Terraform
@@ -385,10 +388,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../iac/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IaC
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -404,6 +434,144 @@
   
 
       </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-iac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is IaC?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What is IaC?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#traditional-vs-iac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traditional vs IaC
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-do-we-use-infrastructure-as-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Do We Use Infrastructure as Code?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Do We Use Infrastructure as Code?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-write-code-when-we-can-just-use-the-cloud-console" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "Why write code when we can just use the cloud console?"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-three-tier-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Three-Tier Application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-environments-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple Environments Problem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#real-world-challenges-without-iac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-World Challenges Without IaC
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benefits-of-infrastructure-as-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benefits of Infrastructure as Code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Benefits of Infrastructure as Code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-advantages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Advantages
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -542,8 +710,6 @@
                 
   
   
-    
-  
   
   
     
@@ -565,15 +731,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_5" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="./" class="md-nav__link md-nav__link--active">
+            <a href="../azure/" class="md-nav__link ">
               
   
   
@@ -592,7 +758,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -930,6 +1096,133 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-iac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is IaC?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What is IaC?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#traditional-vs-iac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traditional vs IaC
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-do-we-use-infrastructure-as-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Do We Use Infrastructure as Code?
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Do We Use Infrastructure as Code?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-write-code-when-we-can-just-use-the-cloud-console" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "Why write code when we can just use the cloud console?"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-three-tier-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Three-Tier Application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-environments-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple Environments Problem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#real-world-challenges-without-iac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-World Challenges Without IaC
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benefits-of-infrastructure-as-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benefits of Infrastructure as Code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Benefits of Infrastructure as Code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-advantages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Advantages
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -972,28 +1265,10 @@
     
     
       <li class="md-path__item">
-        <a href="../iac/" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    Terraform
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-    
-    
-      <li class="md-path__item">
         <a href="./" class="md-path__link">
           
   <span class="md-ellipsis">
-    Azure
+    Terraform
   </span>
 
         </a>
@@ -1010,9 +1285,116 @@
                 
                   
 
-  <h1>Index</h1>
+<h1 id="infrastructure-as-code">Infrastructure as Code<a class="headerlink" href="#infrastructure-as-code" title="Permanent link">&para;</a></h1>
+<h2 id="what-is-iac">What is IaC?<a class="headerlink" href="#what-is-iac" title="Permanent link">&para;</a></h2>
+<p><strong>Infrastructure as Code (IaC)</strong> means provisioning and managing infrastructure using <strong>code</strong>, instead of manually creating resources via a cloud console (clicks, drag &amp; drop).</p>
+<p>In IaC:</p>
+<ul>
+<li>Infrastructure is defined declaratively</li>
+<li>The same code can create, update, or destroy resources</li>
+<li>Infrastructure becomes repeatable and predictable</li>
+</ul>
+<h3 id="traditional-vs-iac">Traditional vs IaC<a class="headerlink" href="#traditional-vs-iac" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>graph LR
+A[Manual Cloud Console
+Click / Drag / Drop] --&gt;|Human Actions| B[Infrastructure]
 
-
+C[Infrastructure Code
+Terraform / ARM / CloudFormation] --&gt;|Automated| D[Infrastructure]</code></pre>
+<hr />
+<h2 id="why-do-we-use-infrastructure-as-code">Why Do We Use Infrastructure as Code?<a class="headerlink" href="#why-do-we-use-infrastructure-as-code" title="Permanent link">&para;</a></h2>
+<h3 id="why-write-code-when-we-can-just-use-the-cloud-console">"Why write code when we can just use the cloud console?"<a class="headerlink" href="#why-write-code-when-we-can-just-use-the-cloud-console" title="Permanent link">&para;</a></h3>
+<p>Manual provisioning works fine for:</p>
+<ul>
+<li>Personal projects</li>
+<li>Learning or experiments</li>
+</ul>
+<p>But it <strong>does not scale</strong>.</p>
+<hr />
+<h3 id="example-three-tier-application">Example: Three-Tier Application<a class="headerlink" href="#example-three-tier-application" title="Permanent link">&para;</a></h3>
+<p>Assume provisioning infra for:</p>
+<ul>
+<li>Load Balancer</li>
+<li>Application Servers</li>
+<li>Database</li>
+</ul>
+<p><strong>Time taken manually:</strong> ~2 hours</p>
+<pre class="mermaid"><code>graph TD
+LB[Load Balancer] --&gt; APP[Application Servers]
+APP --&gt; DB[Database]</code></pre>
+<p>That’s acceptable for <strong>one environment</strong>.</p>
+<hr />
+<h3 id="multiple-environments-problem">Multiple Environments Problem<a class="headerlink" href="#multiple-environments-problem" title="Permanent link">&para;</a></h3>
+<p>In a company, you usually have:</p>
+<ul>
+<li>Dev</li>
+<li>QA</li>
+<li>Staging</li>
+<li>Production</li>
+</ul>
+<p>Manual provisioning time:</p>
+<table>
+<thead>
+<tr>
+<th>Environments</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2 hrs</td>
+</tr>
+<tr>
+<td>4</td>
+<td>8 hrs</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>graph LR
+Dev --&gt; QA --&gt; Staging --&gt; Prod</code></pre>
+<p>Now imagine:</p>
+<ul>
+<li>Hundreds of servers</li>
+<li>Multiple regions</li>
+<li>Multiple teams</li>
+</ul>
+<p>Manual setup becomes:</p>
+<ul>
+<li>Slow</li>
+<li>Error-prone</li>
+<li>Hard to maintain</li>
+</ul>
+<hr />
+<h3 id="real-world-challenges-without-iac">Real-World Challenges Without IaC<a class="headerlink" href="#real-world-challenges-without-iac" title="Permanent link">&para;</a></h3>
+<p>❌ Hard to decommission infra → <strong>High cloud cost</strong><br />
+❌ Environments differ → <em>"Works on my machine"</em> issue<br />
+❌ No easy rollback<br />
+❌ No visibility into changes<br />
+❌ Security &amp; compliance risks  </p>
+<pre class="mermaid"><code>graph TD
+Manual[Manual Infra] --&gt; Errors[Human Errors]
+Manual --&gt; Cost[High Cost]
+Manual --&gt; Drift[Environment Drift]</code></pre>
+<hr />
+<h2 id="benefits-of-infrastructure-as-code">Benefits of Infrastructure as Code<a class="headerlink" href="#benefits-of-infrastructure-as-code" title="Permanent link">&para;</a></h2>
+<h3 id="key-advantages">Key Advantages<a class="headerlink" href="#key-advantages" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Consistent environments across Dev / QA / Prod</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Write once, deploy many (single codebase)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Faster provisioning</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Reduced human error</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Cost savings via automation</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Version control (Git tracks infra changes)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Automated cleanup &amp; scheduled destruction</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Easy to create identical production-like environments</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Developers can focus on application development</li>
+</ul>
+<pre class="mermaid"><code>graph LR
+Code[Infra Code] --&gt; Repeatable[Repeatable Infra]
+Code --&gt; Secure[Secure &amp; Auditable]
+Code --&gt; Fast[Fast Provisioning]
+Code --&gt; Cheap[Cost Optimized]</code></pre>
 
 
 
@@ -1051,31 +1433,15 @@
       
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
-          
-          <a href="../aws/" class="md-footer__link md-footer__link--prev" aria-label="Previous: AWS">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                AWS
-              </div>
-            </div>
-          </a>
-        
         
           
-          <a href="../../system_design/database/" class="md-footer__link md-footer__link--next" aria-label="Next: Index">
+          <a href="../terraform/" class="md-footer__link md-footer__link--next" aria-label="Next: Terraform">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Index
+                Terraform
               </div>
             </div>
             <div class="md-footer__button md-icon">
