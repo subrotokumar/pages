@@ -59,18 +59,14 @@ extra_javascript:
   - javascripts/mermaid.mjs
 
 nav:
+  - System Design:
+    - Deep Drive:
+      - Data structure for Big Data: system_design/deep_drive/data_structure_for_big_data.md
   - Terraform:
     - IaC: terraform/iac.md
     - Terraform: terraform/terraform.md
     - Provider: terraform/provider.md
-    - AWS:
-        - terraform/aws/index.md
+    # - AWS:
+    #     - terraform/aws/index.md
     - Azure:
         - terraform/azure/index.md
-  - System Design:
-    - Databases:
-      - system_design/database/index.md
-      - Right DB: system_design/database/index.md
-    - Message Broker:
-      - Queue: system_design/message_broker/queue.md
-      - Streamming: system_design/message_broker/streaming.md
