@@ -60,8 +60,9 @@ extra_javascript:
 
 nav:
   - System Design:
-    - Deep Drive:
-      - Data structure for Big Data: system_design/deep_drive/data_structure_for_big_data.md
+    - Deep Dive:
+      - Network Essential: system_design/deep_dive/networking.md
+      - Data structure for Big Data: system_design/deep_dive/data_structure_for_big_data.md
   - Terraform:
     - IaC: terraform/iac.md
     - Terraform: terraform/terraform.md
