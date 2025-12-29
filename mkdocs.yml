@@ -38,6 +38,9 @@ theme:
   - navigation.tracking
   - search.highlight
 
+  hide:
+    - navigation
+
 extra:
   generator: false
   consent:

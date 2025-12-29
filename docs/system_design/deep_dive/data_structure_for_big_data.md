@@ -1,3 +1,8 @@
+---
+hide:
+    - toc
+---
+
 # When “Perfect” Is the Bottleneck
 
 ## How Approximate Data Structures Win at Scale
