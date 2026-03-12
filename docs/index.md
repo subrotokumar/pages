@@ -3,12 +3,11 @@ hide:
     - toc
     - navigation
     - footer
-
 ---
 
 <style>
 .md-grid {
-  max-width: 100%;
+  max-width: 80%;
 }
 .md-content__inner {
   max-width: 100%;

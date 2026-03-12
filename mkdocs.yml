@@ -37,7 +37,7 @@ theme:
   - navigation.indexes
   - navigation.instant
   - navigation.instant.prefetch
-  - navigation.path
+  # - navigation.path
   - navigation.sections
   - navigation.tabs
   - navigation.top
@@ -88,3 +88,6 @@ nav:
     - Deep Dive:
       # - Network Essential: system_design/deep_dive/networking.md
       - Data structure for Big Data: system_design/deep_dive/data_structure_for_big_data.md
+  - Kubernetes: 
+    - kubernetes/index.md
+    - Managing secrets kubernetes sops age: kubernetes/managing-secrets-kubernetes-sops-age.md
