@@ -1,12 +1,18 @@
 site_name: Pages
 site_description: No fluff. Just the details engineers care about.
 site_author: Subroto Kumar
-repo_url: https://github.com/subrotokumar
-repo_name: subrotokumar
+site_url: https://pages.subrotokumar.dev
+repo_url: https://subrotokumar.dev
+repo_name: subrotokumar.dev
 copyright: Copyright &copy; 2025 Subroto Kumar
 dev_addr: localhost:8000
 
 theme:
+  font:
+    code: JetBrains Mono
+  icon:
+    repo: fontawesome/solid/terminal
+
   palette:
   - scheme: default
     toggle:
@@ -60,17 +66,25 @@ extra:
 
 extra_javascript:
   - javascripts/mermaid.mjs
+  
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - toc:
+      toc_depth: 0
 
 nav:
+  - Home: index.md
   - System Design:
+    - Caching: 
+      - system_design/caching/index.md
+      - Cache Stampede: system_design/caching/cache_stampede.md
     - Deep Dive:
-      - Network Essential: system_design/deep_dive/networking.md
+      # - Network Essential: system_design/deep_dive/networking.md
       - Data structure for Big Data: system_design/deep_dive/data_structure_for_big_data.md
-  - Terraform:
-    - IaC: terraform/iac.md
-    - Terraform: terraform/terraform.md
-    - Provider: terraform/provider.md
-    # - AWS:
-    #     - terraform/aws/index.md
-    - Azure:
-        - terraform/azure/index.md

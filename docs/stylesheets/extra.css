@@ -1,0 +1,37 @@
+/* Typography */
+:root {
+  --md-text-font: "IBM Plex Sans", sans-serif;
+  --md-code-font: "JetBrains Mono", monospace;
+}
+
+/* Tighter code blocks */
+.highlight pre {
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+/* Reading width — engineers prefer narrower columns */
+.md-grid {
+  max-width: 1100px;
+}
+
+.md-content__inner {
+  max-width: 780px;
+}
+
+/* Admonition tweaks */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 0;
+  border-left-width: 4px;
+}
+
+/* Table styling */
+.md-typeset table:not([class]) {
+  font-size: 0.82rem;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--md-default-fg-color--lightest);
+  font-weight: 600;
+}
