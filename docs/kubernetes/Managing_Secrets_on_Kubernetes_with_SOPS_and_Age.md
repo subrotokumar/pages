@@ -1,3 +1,8 @@
+---
+hide:
+    - toc
+---
+
 # Managing Secrets on Kubernetes with SOPS and Age 
  
 Most teams discover the Kubernetes secrets problem the same way. You write a deployment manifest, you need a database password, and you put it in a Secret object. Then someone asks where that Secret came from. Then someone asks how it gets into the cluster. Then someone asks whether it's safe to commit it to git. 
@@ -527,8 +532,4 @@ It does not solve dynamic credential generation, automatic rotation, or read-acc
  
 For teams on ArgoCD or Flux who want secrets in git without ceremony, without extra infrastructure, and without manual kubectl apply steps, SOPS is the most straightforward path to get there. 
  
-The setup takes an afternoon. The operational overhead after that is minimal. And your secrets finally live where the rest of your configuration does. 
- 
---- 
- 
-*Tools referenced: mozilla/sops · FiloSottile/age · viaduct-ai/kustomize-sops · argoproj/argo-cd · kubernetes-sigs/kustomize*
+The setup takes an afternoon. The operational overhead after that is minimal. And your secrets finally live where the rest of your configuration does.

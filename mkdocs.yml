@@ -84,10 +84,11 @@ nav:
   - System Design:
     - Caching: 
       - system_design/caching/index.md
-      - Cache Stampede: system_design/caching/cache_stampede.md
+      - Cache Stampede: system_design/caching/Cache_Stampede.md
     - Deep Dive:
       # - Network Essential: system_design/deep_dive/networking.md
       - Data structure for Big Data: system_design/deep_dive/data_structure_for_big_data.md
   - Kubernetes: 
     - kubernetes/index.md
-    - Managing secrets kubernetes sops age: kubernetes/managing-secrets-kubernetes-sops-age.md
+    - Managing secrets kubernetes sops age: kubernetes/Managing_Secrets_on_Kubernetes_with_SOPS_and_Age.md
+    - kubernetes/Why_HPA_Lags_Behind_Traffic_Spikes_by_Design.md
