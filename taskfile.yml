@@ -1,0 +1,10 @@
+version: '3'
+
+tasks:
+  ls:
+    cmds:
+    - task --list-all
+
+  serve:
+    cmds: 
+    - uv run zensical serve

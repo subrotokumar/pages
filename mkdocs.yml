@@ -79,6 +79,9 @@ markdown_extensions:
   - toc:
       toc_depth: 0
 
+extra_css:
+  - stylesheets/extra.css
+
 nav:
   - Home: index.md
   - System Design:
@@ -88,6 +91,9 @@ nav:
     - Deep Dive:
       # - Network Essential: system_design/deep_dive/networking.md
       - Data structure for Big Data: system_design/deep_dive/data_structure_for_big_data.md
+  - Applied AI:
+    - applied_ai/index.md
+    - RAG: applied_ai/rag.md
   - Kubernetes: 
     - kubernetes/index.md
     - Managing secrets kubernetes sops age: kubernetes/Managing_Secrets_on_Kubernetes_with_SOPS_and_Age.md
