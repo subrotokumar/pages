@@ -1,7 +1,9 @@
 ---
 hide:
     - toc
+    - navigation
 ---
+
 
 # Managing Secrets on Kubernetes with SOPS and Age 
  

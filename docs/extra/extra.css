@@ -35,3 +35,11 @@
   background-color: var(--md-default-fg-color--lightest);
   font-weight: 600;
 }
+
+.md-grid {
+  max-width: 90%;
+}
+.md-content__inner {
+  max-width: 100%;
+  padding: 0 3rem;
+}

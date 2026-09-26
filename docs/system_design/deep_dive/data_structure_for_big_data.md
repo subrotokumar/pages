@@ -1,6 +1,7 @@
 ---
 hide:
     - toc
+    - navigation
 ---
 
 # When “Perfect” Is the Bottleneck

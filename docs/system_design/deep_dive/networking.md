@@ -1,8 +1,8 @@
 ---
 hide:
     - toc
+    - navigation
 ---
-
 # Network
 
 A network is a **distributed message-passing substrate** with no global clock, no shared memory, and no guarantee that messages arrive.

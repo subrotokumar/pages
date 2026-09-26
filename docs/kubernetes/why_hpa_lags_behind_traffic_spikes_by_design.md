@@ -1,7 +1,9 @@
 ---
 hide:
     - toc
+    - navigation
 ---
+
 
 # Why HPA Lags Behind Traffic Spikes by Design
 

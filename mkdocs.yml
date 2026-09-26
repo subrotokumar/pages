@@ -14,35 +14,35 @@ theme:
     repo: fontawesome/solid/terminal
 
   palette:
-  - scheme: default
-    toggle:
-      icon: lucide/sun
-      name: Switch to dark mode
-  - scheme: slate
-    toggle:
-      icon: lucide/moon
-      name: Switch to light mode
+    - scheme: default
+      toggle:
+        icon: lucide/sun
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: lucide/moon
+        name: Switch to light mode
   favicon: images/logo1.png
   logo: images/logo1.png
   language: en
   features:
-  - announce.dismiss
-  - content.code.annotate
-  - content.code.copy
-  - content.code.select
-  - content.footnote.tooltips
-  - content.tabs.link
-  - content.tooltips
-  - navigation.footer
-  - navigation.indexes
-  - navigation.instant
-  - navigation.instant.prefetch
-  # - navigation.path
-  - navigation.sections
-  - navigation.tabs
-  - navigation.top
-  - navigation.tracking
-  - search.highlight
+    - announce.dismiss
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - content.footnote.tooltips
+    - content.tabs.link
+    - content.tooltips
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.prefetch
+    # - navigation.path
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
 
   hide:
     - navigation
@@ -57,16 +57,15 @@ extra:
         find what they're searching for. With your consent, you're helping us to
         make our documentation better.
   social:
-  - icon: fontawesome/brands/github
-    link: https://github.com/subrotokumar/pages
-  - icon: fontawesome/brands/linkedin
-    link: https://linkedin.com/in/kumarsubroto
-  - icon: fontawesome/brands/x-twitter
-    link: https://x.com/isubrotokumar
+    - icon: fontawesome/brands/github
+      link: https://github.com/subrotokumar/pages
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com/in/kumarsubroto
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/isubrotokumar
 
 extra_javascript:
-  - javascripts/mermaid.mjs
-  
+  - extra/mermaid.mjs
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -78,23 +77,24 @@ markdown_extensions:
   - pymdownx.superfences
   - toc:
       toc_depth: 0
-
 extra_css:
-  - stylesheets/extra.css
-
+  - extra/extra.css
 nav:
   - Home: index.md
+
   - System Design:
-    - Caching: 
-      - system_design/caching/index.md
-      - Cache Stampede: system_design/caching/Cache_Stampede.md
-    - Deep Dive:
-      # - Network Essential: system_design/deep_dive/networking.md
-      - Data structure for Big Data: system_design/deep_dive/data_structure_for_big_data.md
+      - system_design/index.md
+      - Caching:
+          - system_design/caching/index.md
+          - Cache Stampede: system_design/caching/cache_stampede.md
+      - Deep Dive:
+          - Network Essential: system_design/deep_dive/networking.md
+          - Data Structure for Big Data: system_design/deep_dive/data_structure_for_big_data.md
+
   - Applied AI:
-    - applied_ai/index.md
-    - RAG: applied_ai/rag.md
-  - Kubernetes: 
-    - kubernetes/index.md
-    - Managing secrets kubernetes sops age: kubernetes/Managing_Secrets_on_Kubernetes_with_SOPS_and_Age.md
-    - kubernetes/Why_HPA_Lags_Behind_Traffic_Spikes_by_Design.md
+      - applied_ai/index.md
+      - RAG: applied_ai/rag.md
+  - Kubernetes:
+      - kubernetes/index.md
+      - Managing Secrets on Kubernetes with SOPS and Age: kubernetes/managing_secrets_on_kubernetes_with_sops_and_age.md
+      - Why HPA Lags Behind Traffic Spikes by Design: kubernetes/why_hpa_lags_behind_traffic_spikes_by_design.md

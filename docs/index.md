@@ -5,16 +5,6 @@ hide:
     - footer
 ---
 
-<style>
-.md-grid {
-  max-width: 80%;
-}
-.md-content__inner {
-  max-width: 100%;
-  padding: 0 3rem;
-}
-</style>
-
 <img src="https://github.com/subrotokumar/subrotokumar/raw/main/assets/banner.png">
 <div style="max-width: 960px; margin: 0 auto; padding: 3.5rem 1rem;">
 
