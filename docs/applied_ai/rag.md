@@ -7,4 +7,4 @@ hide:
 
 # RAG
 
-<img src="https://github.com/subrotokumar/diagrams/blob/main/diagrams/unified_intelligence_platform.png?raw=true" class="full-width-image" alt="Unified Intelligence Platform">
+<img src="https://raw.githubusercontent.com/subrotokumar/diagrams/576b055fbb49f3c9cd9c1765b5b87222988c0d4b/src/unified_intelligence/diagram.svg" class="full-width-image" alt="Unified Intelligence Platform">
