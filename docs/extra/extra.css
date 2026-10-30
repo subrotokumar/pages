@@ -2,6 +2,67 @@
 :root {
   --md-text-font: "IBM Plex Sans", sans-serif;
   --md-code-font: "JetBrains Mono", monospace;
+  --md-default-bg-color: #faf9f6;
+  --md-default-bg-color--light: #faf9f6b3;
+  --grid-color: rgba(0, 0, 0, 0.035);
+  --grid-size: 48px;
+  --card-border-color: #c4c8d0;
+}
+
+[data-md-color-scheme="default"] {
+  --md-default-bg-color: #faf9f6;
+  --md-default-bg-color--light: #faf9f6b3;
+  --grid-color: rgba(0, 0, 0, 0.035);
+  --card-border-color: #c4c8d0;
+}
+
+[data-md-color-scheme="slate"] {
+  --grid-color: rgba(255, 255, 255, 0.03);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-md-color-scheme="default"]) {
+    --grid-color: rgba(255, 255, 255, 0.03);
+  }
+}
+
+body {
+  background-color: var(--md-default-bg-color);
+  background-image:
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  background-position: 0 0;
+  background-repeat: repeat;
+}
+
+/* Card boxes on index pages */
+div[style*="border-radius: 10px"] {
+  background-color: var(--md-default-bg-color);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-md-color-scheme="default"] div[style*="border-radius: 10px"] {
+  border-color: var(--card-border-color, #c4c8d0) !important;
+  background-color: #ffffff;
+}
+
+[data-md-color-scheme="default"] div[style*="border-radius: 10px"]:hover {
+  border-color: #94a3b8 !important;
+}
+
+[data-md-color-scheme="slate"] div[style*="border-radius: 10px"] {
+  background-color: var(--md-default-bg-color);
+}
+
+@media print {
+  body {
+    background-image: none !important;
+  }
+}
+
+.md-footer {
+  background-color: transparent;
 }
 
 .md-typeset {
