@@ -1,6 +1,7 @@
 ---
 hide:
     - toc
+    - footer
 ---
 
 # Caching Architectures and Failure Modes

@@ -1,6 +1,7 @@
 ---
 hide:
     - toc
+    - footer
 ---
 
 # Kubernetes Internals and Platform Operations

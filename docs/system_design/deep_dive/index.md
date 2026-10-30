@@ -1,6 +1,7 @@
 ---
 hide:
     - toc
+    - footer
 ---
 
 # Systems Deep Dives
