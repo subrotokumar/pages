@@ -8,6 +8,7 @@ copyright: Copyright &copy; 2025 Subroto Kumar
 dev_addr: localhost:8000
 
 theme:
+  custom_dir: overrides
   font:
     code: JetBrains Mono
   icon:

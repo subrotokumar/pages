@@ -28,35 +28,35 @@ This repository functions as an externalized memory bank for edge cases, non obv
 
 <hr style="margin: 3.5rem 0;" />
 
-<h2>Core Focus Areas</h2>
+<h2>What lives here</h2>
 
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-top: 1.75rem;">
 
   <div style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.25rem;">
-    <a href="system_design/" style="text-decoration: none; font-weight: 700; font-size: 1.1rem; color: inherit;">System Design</a>
+    <a href="system_design/" style="text-decoration: none; font-weight: 700; font-size: 1.1rem; color: inherit;">Production behavior</a>
     <p style="margin-top: 0.6rem; color: #6b7280; font-size: 0.95rem;">
-      Distributed coordination, cache stampede prevention, tail latency mitigation, and data structures engineered for high cardinality streams.
+      How systems actually behave once they leave localhost - latency, backpressure, partial failures, and surprises.
     </p>
   </div>
 
   <div style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.25rem;">
-    <a href="kubernetes/" style="text-decoration: none; font-weight: 700; font-size: 1.1rem; color: inherit;">Kubernetes Internals</a>
+    <a href="kubernetes/" style="text-decoration: none; font-weight: 700; font-size: 1.1rem; color: inherit;">Design trade-offs</a>
     <p style="margin-top: 0.6rem; color: #6b7280; font-size: 0.95rem;">
-      Autoscaling mechanics, control loop reconciliation delays, metrics collection ceilings, and zero trust secret management using SOPS and Age.
+      The "why" behind decisions, including alternatives that were rejected and the costs that came with each choice.
     </p>
   </div>
 
   <div style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.25rem;">
-    <a href="applied_ai/" style="text-decoration: none; font-weight: 700; font-size: 1.1rem; color: inherit;">Applied AI Architecture</a>
+    <a href="applied_ai/" style="text-decoration: none; font-weight: 700; font-size: 1.1rem; color: inherit;">Failure analysis</a>
     <p style="margin-top: 0.6rem; color: #6b7280; font-size: 0.95rem;">
-      Production retrieval augmented generation, bi encoder and cross encoder pipelines, hybrid search ranking, and context window economics.
+      Incidents, near-misses, and outages-broken down into symptoms, causes, and corrective actions.
     </p>
   </div>
 
   <div style="border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.25rem;">
-    <a href="system_design/deep_dive/networking/" style="text-decoration: none; font-weight: 700; font-size: 1.1rem; color: inherit;">Network Protocols</a>
+    <a href="system_design/deep_dive/networking/" style="text-decoration: none; font-weight: 700; font-size: 1.1rem; color: inherit;">Operational notes</a>
     <p style="margin-top: 0.6rem; color: #6b7280; font-size: 0.95rem;">
-      The physics of packet transit, TCP congestion control algorithms, head of line blocking, socket buffer tuning, and cascading retry storms.
+      Runbooks, checks, configs, and patterns that matter when systems are already on fire.
     </p>
   </div>
 
