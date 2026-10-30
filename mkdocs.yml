@@ -37,7 +37,7 @@ theme:
     - navigation.indexes
     - navigation.instant
     - navigation.instant.prefetch
-    # - navigation.path
+    - navigation.path
     - navigation.sections
     - navigation.tabs
     - navigation.top
@@ -88,6 +88,7 @@ nav:
           - system_design/caching/index.md
           - Cache Stampede: system_design/caching/cache_stampede.md
       - Deep Dive:
+          - system_design/deep_dive/index.md
           - Network Essential: system_design/deep_dive/networking.md
           - Data Structure for Big Data: system_design/deep_dive/data_structure_for_big_data.md
 

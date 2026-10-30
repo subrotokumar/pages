@@ -1,0 +1,3 @@
+[tasks.server]
+description = "Run server in dev mode"
+run = "uv run zensical serve"
