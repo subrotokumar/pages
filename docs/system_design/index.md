@@ -1,6 +1,7 @@
 ---
 hide:
     - toc
+    - footer
 ---
 
 # System Design and Distributed Systems

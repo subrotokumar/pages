@@ -1,6 +1,7 @@
 ---
 hide:
     - toc
+    - footer
 ---
 
 # Applied AI Architecture

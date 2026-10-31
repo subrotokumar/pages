@@ -82,7 +82,6 @@ extra_css:
   - extra/extra.css
 nav:
   - Home: index.md
-
   - System Design:
       - system_design/index.md
       - Caching:
@@ -92,7 +91,6 @@ nav:
           - system_design/deep_dive/index.md
           - Network Essential: system_design/deep_dive/networking.md
           - Data Structure for Big Data: system_design/deep_dive/data_structure_for_big_data.md
-
   - Applied AI:
       - applied_ai/index.md
       - RAG: applied_ai/rag.md

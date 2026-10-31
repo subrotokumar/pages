@@ -4,7 +4,7 @@
   --md-code-font: "JetBrains Mono", monospace;
   --md-default-bg-color: #faf9f6;
   --md-default-bg-color--light: #faf9f6b3;
-  --grid-color: rgba(0, 0, 0, 0.035);
+  --grid-color: rgba(0, 0, 0, 0.045);
   --grid-size: 48px;
   --card-border-color: #c4c8d0;
 }
@@ -12,17 +12,17 @@
 [data-md-color-scheme="default"] {
   --md-default-bg-color: #faf9f6;
   --md-default-bg-color--light: #faf9f6b3;
-  --grid-color: rgba(0, 0, 0, 0.035);
+  --grid-color: rgba(0, 0, 0, 0.045);
   --card-border-color: #c4c8d0;
 }
 
 [data-md-color-scheme="slate"] {
-  --grid-color: rgba(255, 255, 255, 0.03);
+  --grid-color: rgba(255, 255, 255, 0.045);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-md-color-scheme="default"]) {
-    --grid-color: rgba(255, 255, 255, 0.03);
+    --grid-color: rgba(255, 255, 255, 0.045);
   }
 }
 
