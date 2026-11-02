@@ -94,6 +94,7 @@ nav:
   - Applied AI:
       - applied_ai/index.md
       - RAG: applied_ai/rag.md
+      - Token Cost of Large Tool Sets: applied_ai/token_cost_of_large_tool_sets.md
   - Kubernetes:
       - kubernetes/index.md
       - Managing Secrets on Kubernetes with SOPS and Age: kubernetes/managing_secrets_on_kubernetes_with_sops_and_age.md
