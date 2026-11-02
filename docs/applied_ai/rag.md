@@ -8,273 +8,409 @@ hide:
 
 > The engineering breakdown of production retrieval augmented generation: hybrid lexical and semantic search, reciprocal rank fusion, cross encoder reranking pipelines, and token economics.
 
-<img src="https://raw.githubusercontent.com/subrotokumar/diagrams/576b055fbb49f3c9cd9c1765b5b87222988c0d4b/src/unified_intelligence/diagram.svg" class="full-width-image" alt="Unified Intelligence Platform Architecture">
+# Designing a Production-Grade Advanced RAG System
 
-## The Naive RAG Failure Pattern
+### Architecture of a Unified Intelligence Platform: ingestion, hybrid retrieval, multi-agent orchestration, access control, observability and delivery
 
-Nearly every software team that builds a prototype Retrieval Augmented Generation (RAG) system begins with the same textbook architecture:
+---
 
-1. Ingest raw PDF, Markdown, or HTML documents.
-2. Slice documents into fixed size chunks (such as 500 characters with 50 character overlap).
-3. Compute dense vector embeddings for each chunk using an off the shelf embedding model.
-4. Store vectors in a vector database (such as pgvector, Qdrant, or Pinecone).
-5. At query time, embed the user query, execute a cosine similarity search, and inject the top five chunks directly into the model context window.
+## TL;DR
 
-This naive pipeline works adequately for simple demos and investor pitch decks. In production, it collapses under real user queries.
+A production RAG system is a distributed system, not a prompt. The architecture below combines:
 
-The reasons for this failure are structural rather than accidental:
+- **Event-driven, multi-modal ingestion** (Docling parsing, separate text / table / image paths, KEDA scale-to-zero workers)
+- **Multi-stage retrieval** (semantic cache, HyDE, dense + BM25 hybrid search, Reciprocal Rank Fusion, cross-encoder reranking)
+- **Supervisor-based multi-agent orchestration** (LangGraph + MCP tools)
+- **An LLM gateway** for routing, fallback and cost control
+- **Relationship-based (Zanzibar-style) authorization** enforced on retrieval
+- **Continuous evaluation and full-stack observability** (OpenTelemetry + Grafana LGTM)
+- **GitOps delivery** (GitLab CI, Helm, ArgoCD, Terraform, External Secrets)
 
-### Semantic Fragmentation
+Sections marked **Improvement** go beyond the reference diagram and describe what we would add before calling this production-ready.
 
-Arbitrary character or token chunking slices continuous logic in half. A database constraint definition might end up in chunk A while the associated failure handling code lands in chunk B. Neither chunk contains sufficient contextual information to answer a complex query accurately.
+---
 
-### Keyword Blindness in Pure Vector Search
+## 1. Why naive RAG breaks in production
 
-Bi-encoder embedding models map textual meaning into continuous vector spaces. While excellent at capturing general conceptual similarity (understanding that "automobile" relates to "car"), they struggle with exact lexical matches. When an engineer searches for a specific error code (`ERR_CONN_REFUSED_4102`), a unique transaction identifier, or an exact function name (`sync_dirty_buffer_pages`), cosine similarity between dense vectors frequently ranks irrelevant paragraphs higher than the document containing the exact identifier.
+The tutorial version is: chunk, embed, store, top-k, stuff into prompt. It fails in an enterprise because:
 
-### Context Window Dilution and the Lost-in-the-Middle Trap
+| Failure mode | Consequence |
+|---|---|
+| Documents contain tables, charts and scans | Flattening to text destroys the facts users ask about most |
+| Dense embeddings are weak on exact tokens | Ticket IDs, policy numbers and acronyms are missed |
+| Short queries embed poorly | The question rarely resembles the passage that answers it |
+| Retrieval ignores permissions | The most relevant chunk may be one the user must not see |
+| Users want actions, not only answers | "Create a Jira ticket" is not a retrieval task |
+| No measurement | Quality regressions are invisible |
+| Every question costs an LLM call | Cost and latency grow linearly with traffic |
 
-Language model attention heads do not process tokens uniformly across massive context windows. As documented in research by Liu et al. (*Lost in the Middle: How Language Models Use Long Contexts*), transformer attention concentrates predominantly at the beginning and the end of the context window. Information positioned in the middle of long prompts experiences severe recall degradation. 
+---
 
-Dumping twenty unranked chunks into an LLM context window increases latency, balloons inference costs, and actively degrades the quality of the generated response.
+## 2. High-level architecture
 
-## Multi Stage Retrieval: The Production Blueprint
 
-Production systems solve these constraints by replacing the single step vector lookup with a multi stage retrieval and reranking pipeline.
+<img src="https://raw.githubusercontent.com/subrotokumar/diagrams/576b055fbb49f3c9cd9c1765b5b87222988c0d4b/src/unified_intelligence/diagram.svg" 
+classname="full-width-image" 
+alt="Unified Intelligence Platform Architecture">
 
-```
-Incoming User Query
-         |
-         +---------------------------------------+
-         |                                       |
-         v                                       v
-[ Dense Vector Retrieval ]             [ Sparse Lexical Search ]
-Cosine similarity over embeddings       BM25 over inverted index
-         |                                       |
-         +-------------------+-------------------+
-                             |
-                             v
-                 [ Reciprocal Rank Fusion ]
-              Combine disparate rank distributions
-                             |
-                             v Top 50 Candidates
-                 [ Cross-Encoder Reranker ]
-              Full token level cross attention
-                             |
-                             v Top 5 High Precision Chunks
-              [ Context Assembly & Synthesis ]
-               Pass to LLM with guardrail prompt
-```
 
-### Stage 1: Hybrid Retrieval (Dense plus Sparse)
+The core principle is **separation of planes**:
 
-To achieve both conceptual understanding and exact term precision, production pipelines run two distinct search algorithms concurrently:
+| Plane | Responsibility | Scaling profile |
+|---|---|---|
+| Serving | Low-latency chat and agent execution | Scales with concurrent users |
+| Ingestion | Heavy parsing and embedding | Bursty; scales to zero |
+| Retrieval | Search, fusion, reranking | Scales with query volume |
+| Control | Permissions, evaluation, observability | Always on, lightweight |
 
-**1. Sparse Lexical Search (BM25 or Lucene):** An inverted index evaluates term frequency and inverse document frequency. It excels at exact keywords, alphanumeric IDs, acronyms, and rare technical terminology.
+A 10,000-page upload must never slow down someone asking a question.
 
-**2. Dense Semantic Search (Bi-Encoders):** Embeddings generated via models such as `text-embedding-3-large` or `bge-large-en-v1.5` capture semantic intent, synonyms, and cross-lingual meaning.
+---
 
-Querying both systems yields two candidate lists with entirely different scoring scales. Dense search produces cosine similarities between 0.0 and 1.0, while BM25 produces unbounded positive floating point scores. Directly adding or normalizing these scores produces erratic ranking because score distributions shift wildly based on query length.
+## 3. Client and Agent Service
 
-### Stage 2: Reciprocal Rank Fusion (RRF)
+The **React client** talks to a single **Agent Service** (Spring in the reference diagram; FastAPI is an equivalent choice). It owns:
 
-The standard algorithm for merging disparate ranked lists without normalizing raw scores is Reciprocal Rank Fusion (RRF). RRF evaluates only the ordinal positions of documents within each result set:
+- Session and conversation state in PostgreSQL
+- Streaming responses to the client (SSE or WebSocket)
+- Entry into the agent graph
+- Emitting traces, metrics and logs through OpenTelemetry
 
-$$RRF\_Score(d) = \sum_{m \in M} \frac{1}{k + r_m(d)}$$
+File uploads **bypass** the Agent Service: the client requests a **presigned URL** and uploads directly to object storage. This keeps large binaries off the application tier.
 
-Where:
+> **Improvement: harden the upload path.**
+> - Constrain presigned URLs by `Content-Type`, maximum size (`content-length-range` with presigned POST) and short expiry.
+> - Upload to a **quarantine** prefix, run malware scanning, then promote to the ingestion prefix.
+> - Encrypt at rest (SSE-KMS) and tag each object with tenant and owner so the ACL can be bound at ingestion time.
 
-| Symbol | Description | Standard Value |
-| --- | --- | --- |
-| $M$ | The set of retrieval systems (Dense and Sparse) | {BM25, DenseVector} |
-| $r_m(d)$ | The rank position of document $d$ in system $m$ (1-indexed) | 1 to $N$ |
-| $k$ | Smoothing constant preventing top ranked items from dominating | 60 |
+> **Improvement: persist agent state.**
+> LangGraph supports checkpointers. Store graph checkpoints in PostgreSQL so a conversation survives pod restarts, supports resume after human approval, and can be replayed for debugging.
 
-If document $d$ ranks 2nd in BM25 and 4th in dense vector search, its score is:
+---
 
-$$RRF\_Score = \frac{1}{60 + 2} + \frac{1}{60 + 4} = 0.01613 + 0.01562 = 0.03175$$
+## 4. Multi-agent orchestration
 
-RRF guarantees that documents appearing near the top of both candidate lists receive massive rank promotions, while documents identified by only one system still maintain a viable path into the candidate pool.
+A single RAG chain is the wrong abstraction once the platform must do more than answer document questions. The design uses the **supervisor pattern** (LangGraph):
 
-### Stage 3: Cross-Encoder Reranking
+- **Supervisor**: classifies intent and routes.
+- **RAG Agent**: knowledge questions over ingested documents.
+- **Domain agents**: HR, Jira, Solution Architect, Support, Business Analyst. Each has a narrow prompt and toolset.
+- **MCP servers**: expose external systems through the Model Context Protocol, so integrations do not require changes to agent code.
 
-Bi-encoders are fast because query embeddings and document embeddings are computed independently. You pre-compute millions of document vectors offline and perform rapid vector dot products at runtime. However, independent embedding means the model never observes token interactions between the user's specific query and the candidate document.
+### The RAG agent loop
 
-A cross-encoder reranker passes the query and document together into the transformer model as a single concatenated sequence: `[CLS] Query [SEP] Document`. Every query token attends directly to every document token through full multi head self attention.
+The RAG agent is a small graph: the **LLM** decides whether to call a **tool**, receives **feedback**, then either calls another tool or answers. This ReAct-style loop lets the model rewrite a failed query, perform multi-hop retrieval, or skip retrieval entirely.
 
-Cross-encoders produce drastically superior relevance scores compared to bi-encoders, but they are computationally expensive. Running a cross-encoder against 100,000 documents would introduce seconds of query latency.
+**Design rule:** keep each agent's toolset small (roughly under 10 to 15 tools). Tool-selection accuracy degrades as the tool list grows, and a supervisor with specialised sub-agents scales better than one giant agent.
 
-The production compromise is hierarchical:
+> **Improvement: treat write actions as high-risk.**
+> - Require **human-in-the-loop approval** (LangGraph interrupts) for state-changing tools such as creating Jira tickets or HR requests.
+> - Make tool calls **idempotent** (idempotency keys) because retries are inevitable.
+> - Propagate the **end user's identity** to MCP servers using on-behalf-of tokens (OAuth token exchange), rather than a shared service account. Otherwise agents become a privilege-escalation path.
+> - Apply least-privilege scopes per agent.
 
-1. Use hybrid retrieval (BM25 + Dense) to retrieve the top 50 to 100 candidate documents in sub 20 milliseconds.
-2. Pass those 50 candidates through a lightweight cross-encoder (such as `bge-reranker-large` or `cohere-rerank-v3`) to compute full cross attention relevance.
-3. Select strictly the top 3 to 5 highest scoring candidates for the final LLM prompt.
+> **Improvement: query understanding before retrieval.**
+> Add a lightweight router/classifier to decide: no retrieval (chit-chat), document retrieval, structured/SQL lookup, or agent action. Also add **conversation-aware query condensation**: rewrite "what about the second one?" into a standalone query using chat history.
 
-## Production Implementation in Python
+---
 
-Here is a self contained, production grade retrieval pipeline demonstrating hybrid retrieval, RRF merging, and cross-encoder reranking.
+## 5. Ingestion pipeline
 
-```python
-import math
-from typing import List, Dict, Any
-from dataclasses import dataclass
+Ingestion is where most RAG systems quietly lose quality.
 
-@dataclass
-class RetrievedChunk:
-    chunk_id: str
-    content: str
-    metadata: Dict[str, Any]
-    score: float = 0.0
+### 5.1 Upload and eventing
 
-class HybridRAGRetriever:
-    def __init__(self, dense_client, sparse_index, reranker_model):
-        self.dense_client = dense_client
-        self.sparse_index = sparse_index
-        self.reranker = reranker_model
+1. Client obtains a presigned URL and uploads to **object storage** (S3-compatible).
+2. The storage layer emits an **upload event** to a **message broker** (SQS, Kafka or RabbitMQ).
+3. **KEDA** scales ingestion workers from zero to N based on queue depth, and back to zero when idle.
 
-    def retrieve(self, query: str, top_k: int = 5) -> List[RetrievedChunk]:
-        # Step 1: Execute concurrent retrieval
-        dense_results = self._dense_search(query, limit=50)
-        sparse_results = self._sparse_search(query, limit=50)
+Properties gained: **back-pressure** (the queue absorbs bursts), **fault isolation** (a bad document is retried without blocking others), **cost efficiency** (no idle workers).
 
-        # Step 2: Apply Reciprocal Rank Fusion (RRF)
-        rrf_candidates = self._reciprocal_rank_fusion(
-            ranked_lists=[dense_results, sparse_results],
-            k_constant=60
-        )
+**Technical notes:**
 
-        # Take top 30 candidates for cross-encoder evaluation
-        candidate_subset = rrf_candidates[:30]
+- S3 can publish events natively to SQS or SNS/EventBridge. With Kafka you need a connector or a small forwarder, so SQS is usually simpler on AWS.
+- With Kafka, the number of consumers that can do useful work is capped by partition count. Size partitions for your target parallelism, and set the KEDA Kafka scaler's `lagThreshold` accordingly.
+- With SQS, set the **visibility timeout** longer than your worst-case parse time, or messages will be delivered twice.
+- Scale-to-zero implies **cold starts** (image pull, model load). Pre-pull images, keep model weights on a shared volume or baked image layer, and set a realistic time-to-searchable SLO.
 
-        # Step 3: Cross-Encoder Reranking
-        reranked_results = self._rerank(query, candidate_subset)
+> **Improvement: make ingestion idempotent and recoverable.**
+> - Key every document by a **content hash** plus a document ID; skip unchanged files and replace changed ones atomically.
+> - Use a **dead-letter queue** with bounded retries and an alert; never let a poison message loop forever.
+> - Track a per-document **state machine** (`uploaded → parsed → chunked → embedded → indexed → failed`) in PostgreSQL so users and operators can see status.
+> - Support **deletion and re-ingestion**: when a source document is removed, all its chunks and cache entries must go too (a common GDPR / retention requirement).
 
-        # Return strictly the top_k most relevant chunks
-        return reranked_results[:top_k]
+### 5.2 Layout-aware parsing
 
-    def _dense_search(self, query: str, limit: int) -> List[RetrievedChunk]:
-        # Queries vector database (pgvector, Qdrant, etc.) using query embedding
-        query_vector = self.dense_client.embed(query)
-        return self.dense_client.similarity_search(query_vector, limit=limit)
+Workers run each file through **Docling**, which understands reading order, headings, tables and figures. Output is split into three streams: text, tables, images.
 
-    def _sparse_search(self, query: str, limit: int) -> List[RetrievedChunk]:
-        # Queries inverted index (BM25, Elasticsearch, OpenSearch)
-        return self.sparse_index.search(query, limit=limit)
+> **Improvement: fall back to OCR and vision.** Scanned PDFs need OCR. For complex pages (slides, infographics), consider a vision-language model or page-image approach in addition to extracted text.
 
-    def _reciprocal_rank_fusion(
-        self, 
-        ranked_lists: List[List[RetrievedChunk]], 
-        k_constant: int = 60
-    ) -> List[RetrievedChunk]:
-        fused_scores: Dict[str, float] = {}
-        chunk_map: Dict[str, RetrievedChunk] = {}
+### 5.3 Three embedding paths
 
-        for ranked_list in ranked_lists:
-            for rank, item in enumerate(ranked_list, start=1):
-                chunk_id = item.chunk_id
-                chunk_map[chunk_id] = item
-                
-                # RRF calculation
-                contribution = 1.0 / (k_constant + rank)
-                fused_scores[chunk_id] = fused_scores.get(chunk_id, 0.0) + contribution
+**Text path.** Text is split by a **metadata-aware chunk splitter** (document ID, section heading, page, ACL reference, source URL), embedded, and written to the **Text Collection** (pgvector).
 
-        # Sort descending by fused RRF score
-        sorted_ids = sorted(
-            fused_scores.keys(), 
-            key=lambda cid: fused_scores[cid], 
-            reverse=True
-        )
+Prefer structure-aware splitting (by heading and paragraph) with modest overlap, over fixed character windows.
 
-        results = []
-        for cid in sorted_ids:
-            chunk = chunk_map[cid]
-            chunk.score = fused_scores[cid]
-            results.append(chunk)
+> **Improvement: better chunking strategies.**
+> - **Parent-child (small-to-big) retrieval:** embed small chunks for precision, but return the larger parent section to the LLM for context.
+> - **Contextual retrieval:** prepend a short LLM-generated summary of the document and section to each chunk before embedding and BM25 indexing. This has been reported to substantially reduce failed retrievals, at one-off ingestion cost.
+> - Store `heading_path` (e.g. `Policy > Leave > Parental`) in metadata and include it in the embedded text.
 
-        return results
+**Table path.** Tables are kept whole rather than shredded into sentences. Embed a **natural-language description** of the table (title, column names, what it shows), and store the **raw table** (Markdown or HTML) as the payload that is given to the LLM. Embedding the raw grid of numbers directly gives poor semantic vectors.
 
-    def _rerank(self, query: str, candidates: List[RetrievedChunk]) -> List[RetrievedChunk]:
-        if not candidates:
-            return []
+**Image path.** Images are Base64-encoded, summarised by a vision model into an **image context**, and that text is embedded. The original image stays in object storage so answers can cite or display it.
 
-        # Prepare query-document pairs for cross-encoder inference
-        pairs = [[query, c.content] for c in candidates]
-        scores = self.reranker.predict(pairs)
+> **Improvement: consider multimodal embeddings.** Caption-then-embed is robust and keeps one text embedding space, but loses visual detail. Multimodal or late-interaction models (e.g. CLIP-style, ColPali-style page retrieval) can retrieve diagrams and charts directly. A common compromise: caption-based retrieval by default, with a multimodal index for visually heavy corpora.
 
-        for i, candidate in enumerate(candidates):
-            candidate.score = float(scores[i])
+**Why three collections?** Different modalities need different embedding strategies, top-k values and sometimes models or metrics. Separate collections let you tune, re-index, or swap the store per modality.
 
-        # Sort descending by cross-encoder score
-        candidates.sort(key=lambda c: c.score, reverse=True)
-        return candidates
-```
+> **Improvement: embedding model governance.**
+> - Store `embedding_model` and `embedding_version` on every vector. Vectors from different models are **not comparable**.
+> - Plan **blue/green re-indexing**: build the new index alongside the old, evaluate, then switch an alias.
+> - Tune the vector index deliberately. For pgvector HNSW, `m`, `ef_construction` and `ef_search` trade recall against latency and memory. For large corpora consider `halfvec` or quantisation.
+> - Keep the dimension and distance metric (cosine vs inner product) consistent with what the embedding model was trained for.
 
-## Advanced Document Chunking Strategies
+---
 
-The quality of retrieval is strictly bounded by chunk boundary design. If the initial chunks lack coherence, no reranking algorithm can rescue the pipeline.
+## 6. Retrieval pipeline
 
-### Document Hierarchy: Parent Document Retrieval
+Each stage fixes a specific failure mode.
 
-A frequent failure mode is a mismatch between optimal retrieval size and optimal synthesis size:
+### 6.1 Semantic cache
 
-* **For Retrieval:** Small chunks (150 to 250 tokens) work best because embeddings maintain high semantic focus without topic drift.
-* **For Synthesis:** Large chunks (1000 to 2000 tokens) work best because LLMs need surrounding context, definitions, and caveats to generate complete answers.
+The query is embedded and compared with previously answered queries (Redis or ElastiCache). On a **hit**, the cached result returns immediately. On a **miss**, the pipeline continues.
 
-Parent Document Retrieval resolves this tension. You index small child chunks into the vector database. Each child chunk maintains a reference metadata pointer to its parent section:
+**Technical cautions:**
+
+- **Scope cache keys by tenant and permission group.** Otherwise a cached answer can leak across users.
+- Use a conservative similarity threshold; near-duplicates with a different meaning ("enable X" vs "disable X") can embed very closely.
+- Set TTLs and **invalidate on re-ingestion or ACL change**.
+- Cache **retrieval results** (chunk IDs) separately from **final generated answers**. Retrieval caching is safer; answer caching is riskier and should be limited to non-personalised content.
+
+### 6.2 HyDE query rewrite
+
+**Hypothetical Document Embeddings**: the LLM writes a short hypothetical answer, and *that* is embedded instead of the raw question. Answers resemble documents more than questions do, so they land nearer the relevant chunks. It helps most with short or ambiguous queries.
+
+**Trade-offs:** adds an LLM call (latency and cost), and can hallucinate misleading hypotheticals. Use a small, fast model, and consider applying HyDE only when initial retrieval confidence is low, or fusing HyDE results with the original-query results rather than replacing them.
+
+> **Improvement: multi-query expansion.** Generate 2 to 4 query variants and fuse all result lists with RRF. This is often more robust than a single rewrite.
+
+### 6.3 Hybrid search: dense plus sparse
+
+Two searches run in parallel over the indexed chunks:
+
+- **Dense vector search** captures meaning and paraphrase.
+- **Sparse BM25 search** (Solr or OpenSearch) captures exact terms, identifiers and rare keywords.
+
+Neither is sufficient alone. Note that this means you maintain **two indexes** and must keep them consistent (same chunk IDs, same ACL metadata, same deletion handling).
+
+> **Improvement: apply metadata filters in both retrievers.** Tenant, ACL group, document type, date and language should be filters inside the search, not post-filters, to avoid empty or biased top-k.
+
+### 6.4 Reciprocal Rank Fusion
+
+Dense and sparse scores are not comparable, so **RRF** fuses by rank:
 
 ```
-+--------------------------------------------------------------+
-| Parent Section (1500 tokens) - Complete Architecture Design  |
-|                                                              |
-|   +-------------------+  +-------------------+  +----------+ |
-|   | Child Chunk A     |  | Child Chunk B     |  | Child C  | |
-|   | (150 tokens)      |  | (150 tokens)      |  | (150 tok)| |
-|   | Indexed in Vector |  | Indexed in Vector |  | Vector   | |
-|   +-------------------+  +-------------------+  +----------+ |
-+--------------------------------------------------------------+
+RRF_score(d) = Σ over rankers r of  1 / (k + rank_r(d))     (commonly k = 60)
 ```
 
-When child chunk B matches a user query during retrieval, the system resolves the parent pointer and injects the complete 1500-token parent document into the LLM prompt. You achieve needle sharp retrieval precision while providing the language model with rich, unbroken contextual background.
+It needs no score normalisation and almost no tuning. Weighted RRF can favour one retriever if evaluation shows it is stronger on your data.
 
-### Structured Metadata Tagging
+### 6.5 Cross-encoder reranking
 
-Never embed raw text in isolation. Prepend high leverage structural metadata directly to the chunk text prior to embedding:
+The fused candidates (e.g. top 50 to 100) go to a **cross-encoder** that reads the query and each candidate **together**, giving much more accurate relevance than bi-encoder similarity, at higher cost. Because it only sees a small candidate set, cost is manageable. The top 5 to 10 become the LLM context.
 
-```python
-formatted_chunk = f"""
-[DOCUMENT: {document_title}]
-[SECTION: {section_header}]
-[UPDATED: {last_modified_date}]
-[PERMISSIONS: {access_role}]
+**Operational notes:** run the reranker on GPU or an optimised CPU runtime, batch candidates, and enforce a latency budget (for example, rerank only the top N, with a timeout fallback to the RRF order).
 
-{chunk_body}
-""".strip()
-```
+> **Improvement: post-retrieval refinement.**
+> - **MMR or diversity filtering** to avoid five near-identical chunks.
+> - **Context compression / deduplication** to fit the context window and cut tokens.
+> - **Lost-in-the-middle mitigation:** place the strongest chunks at the start and end of the prompt.
+> - **Score thresholds with an explicit "I don't know" path:** if the best reranker score is below a threshold, answer that the information was not found rather than guessing.
 
-This ensures that queries referencing specific sections ("What are the Q3 authentication guidelines?") align semantically with both the content and the metadata header.
+### Stage summary
 
-## Token Economics and Latency Budgets
+| Stage | Problem solved | Trade-off |
+|---|---|---|
+| Semantic cache | Repeats, cost | Staleness; needs scoped keys |
+| HyDE / multi-query | Vague short queries | Extra LLM call |
+| Dense search | Paraphrase, meaning | Weak on exact terms |
+| BM25 | Exact keywords, IDs | Weak on semantics |
+| RRF | Merging incomparable scores | Minor rank information loss |
+| Cross-encoder | Final-context precision | Added latency |
 
-Engineering AI systems requires managing strict latency and financial budgets.
+---
 
-| Pipeline Component | Latency Budget (p95) | Cost Profile |
-| --- | --- | --- |
-| Query Embedding (OpenAI / Local) | 15 to 30 ms | Sub cent per 1,000 queries |
-| BM25 Inverted Index Lookup | 5 to 15 ms | CPU and memory bounded |
-| Dense Vector Annoy / HNSW Search | 10 to 25 ms | Memory bounded |
-| Reciprocal Rank Fusion Merge | 1 to 2 ms | In-memory sort overhead |
-| Cross-Encoder Reranker (50 items) | 40 to 80 ms | GPU compute bounded |
-| LLM Generation Time to First Token | 200 to 500 ms | Dominant token cost |
+## 7. The LLM gateway
 
-A naive system that stuffs twenty 1,000-token chunks into the context window forces the LLM to process 20,000 prompt tokens on every request. At scale, this introduces significant prompt processing latency and escalates operational spend.
+All model calls pass through one **gateway** fronting Azure OpenAI, AWS Bedrock, Ollama (self-hosted) and Hugging Face endpoints. A **router** selects a target by **cost, latency and context window** and performs **retry and fallback**.
 
-A precision hybrid pipeline with cross-encoder reranking achieves higher accuracy with strictly four 500-token chunks (2,000 total prompt tokens). You reduce LLM input token volume by 90%, cut Time to First Token by more than half, and eliminate the lost-in-the-middle context degradation entirely.
+Benefits: no vendor lock-in, resilience to provider outages, cost control (cheap models for rewriting and classification, strong models for synthesis), data-residency pinning for sensitive workloads, and one place for logging, PII redaction and token budgets.
 
-## Production Architecture Checklist
+**Technical notes:**
 
-1. Ingest documents through layout-aware parsers that preserve headers, tables, and code blocks intact.
-2. Implement Parent Document Retrieval so small chunks drive search while comprehensive context drives answer generation.
-3. Combine BM25 lexical search with dense vector embeddings to eliminate keyword blind spots.
-4. Merge disparate candidate ranks using Reciprocal Rank Fusion with $k=60$.
-5. Evaluate top candidates using a cross-encoder reranker before final context window assembly.
-6. Restrict final prompt context to top scoring chunks, placing the most critical factual references at the start and conclusion of the context block.
+- Retries must use **exponential backoff with jitter** and respect provider rate-limit headers; add **circuit breakers** so a failing provider is skipped quickly.
+- Fallbacks across providers must account for differences in **tool-calling format, context limit and tokenisation**. Normalise to one internal schema.
+- Retry only **idempotent** calls. A retried generation is fine; a retried tool side-effect is not.
+
+> **Improvement: gateway-level controls.**
+> - Per-tenant and per-user **token budgets and rate limits**.
+> - **Prompt caching** (provider-side) for large static system prompts.
+> - **Guardrails**: input and output moderation, PII detection and redaction.
+> - Structured output validation (JSON schema) with a repair-or-retry step.
+
+---
+
+## 8. Access control and security
+
+### 8.1 Relationship-based access control (Zanzibar-style)
+
+Enterprise RAG fails its first security review if retrieval ignores permissions. A **Zanzibar-style** engine models relationships such as *user ∈ group*, *group can view folder*, *folder contains document*, and answers "can user U view document D?" through graph traversal. Open-source implementations include **SpiceDB** and **OpenFGA**. Relationships are synchronised **live** from source systems (ServiceNow, Jira, HR platform).
+
+> **Note on the diagram:** the diagram uses a Vault icon and a Zendesk icon purely as stand-ins for the permission engine and the source-of-truth systems. Vault is a secrets manager, not an authorization engine.
+
+**Two enforcement strategies, used together:**
+
+- **Pre-filter:** pass the user's allowed groups or resolved document set into the search as a filter, so forbidden chunks are never retrieved. Better relevance and efficiency.
+- **Post-check:** verify every returned chunk against the permission engine. A safety net against stale indexes or filter bugs.
+
+> **Improvement: where to place the post-check.**
+> The reference diagram checks permissions after the supervisor produces output. A safer placement is **before the chunks enter the LLM prompt** (after reranking, before generation). If you check only after generation, the model has already seen forbidden content and may have paraphrased it into the answer, and filtering text after the fact is unreliable. Apply the same check to results returned by **MCP tools and domain agents**, not only the RAG path.
+
+> **Improvement: keep permissions fresh.** ACL changes (a user leaves a group) must propagate quickly. Use the permission engine's consistency tokens ("zookies" in Zanzibar terms) or short TTLs, and prefer checking at query time over copying ACLs into chunk metadata only. Copied ACLs go stale; use them for coarse pre-filtering and the engine for the final decision.
+
+### 8.2 LLM-specific threats
+
+> **Improvement: address the OWASP LLM Top 10 explicitly.**
+> - **Indirect prompt injection:** retrieved documents are untrusted input. A malicious paragraph can instruct the model to exfiltrate data or call tools. Mitigate with clear delimiting of retrieved content, instruction hierarchy in prompts, tool-call allow-lists, human approval for sensitive actions, and output filtering.
+> - **Data exfiltration via rendering:** block auto-loading of model-generated image/markdown URLs.
+> - **Sensitive data in logs and traces:** redact prompts and responses in telemetry, or restrict access to them.
+> - **Tenant isolation:** enforce at the index, cache and storage layers, and test it.
+
+### 8.3 Citations
+
+> **Improvement: return citations.** Every answer should reference the chunk IDs, document titles and page numbers it used. Citations build trust, enable audit, and make evaluation of faithfulness tractable.
+
+---
+
+## 9. Evaluation
+
+The supervisor's outputs are scored on:
+
+- **Faithfulness**: is the answer supported by the retrieved context (hallucination check)?
+- **Answer relevance**: does it address the question?
+- **Context precision**: was the retrieved context useful and well ranked?
+
+> **Improvement: add retrieval-only metrics and context recall.** Evaluate the retriever separately from the generator using **Recall@k, MRR and nDCG** on a labelled set. Add **context recall** (did retrieval surface what was needed?), which requires reference answers or labelled relevant chunks. A bad answer can be a retrieval problem or a generation problem, and you need to know which.
+
+Run evaluation in two modes:
+
+1. **Offline, in CI:** a versioned **golden set** of questions with reference answers and relevant documents. Gate merges on regression thresholds when chunking, embeddings, prompts or models change.
+2. **Online, on sampled traffic:** detect drift and new failure modes. Capture user feedback (thumbs up/down, corrections) and feed the failures back into the golden set.
+
+**Caveat:** LLM-as-judge metrics (as in RAGAS or DeepEval) are noisy and biased. Use a strong, fixed judge model, calibrate against human labels on a sample, and track variance.
+
+---
+
+## 10. Observability
+
+Every service emits traces, metrics and logs through **OpenTelemetry**. The collector fans out to the **LGTM** stack:
+
+| Signal | Backend |
+|---|---|
+| Logs | Loki |
+| Traces | Tempo |
+| Metrics | Prometheus |
+| Dashboards and alerting | Grafana |
+
+**RAG-specific signals to instrument:**
+
+- Per-stage latency (cache, HyDE, dense, BM25, RRF, rerank, generation) as **spans** within one trace
+- Cache hit rate
+- Empty-result rate and score distributions
+- Token usage and cost per request, tenant and model
+- Ingestion queue depth, failure rate, **time-to-searchable**
+- Evaluation scores over time
+- Provider error rate and fallback frequency
+
+> **Improvement: use OpenTelemetry GenAI semantic conventions** for LLM spans (model, token counts, finish reason), and consider an LLM-focused trace tool (Langfuse, Arize Phoenix) alongside Grafana for prompt-level inspection. Define **SLOs** (for example p95 time-to-first-token, answer latency, ingestion freshness) and alert on burn rate, not raw thresholds.
+
+---
+
+## 11. Delivery: GitOps, IaC and secrets
+
+The platform runs on Kubernetes (self-managed or EKS) and ships through two GitLab CI pipelines.
+
+**Application pipeline:** lint, test, package, security scan, push the image to the registry (ECR), update the **Helm chart repository**. **ArgoCD** watches that repository and reconciles the cluster, so Git is the source of truth.
+
+**Infrastructure pipeline:** merging a PR in the infra repository triggers plan and apply, with **Terraform** provisioning cloud resources.
+
+**Secrets:** held in a vault (HashiCorp Vault or AWS Secrets Manager) and synced by the **External Secrets Operator (ESO)** into Kubernetes Secrets. **Reloader** watches ConfigMaps and Secrets and rolls the Deployment on change, so rotation needs no manual restart. The **Gateway API** (implemented here by Istio) provides ingress, mTLS and traffic policy.
+
+> **Improvement: delivery hardening.**
+> - Require manual approval and plan review before Terraform **apply** in production.
+> - Sign images and generate an SBOM; enforce admission policy (cosign verification, Kyverno or OPA Gatekeeper).
+> - Use **NetworkPolicies**, workload identity (IRSA on EKS) instead of static cloud keys, and separate namespaces per environment.
+> - Add **HPA** for the serving tier, **PodDisruptionBudgets**, and resource requests and limits (GPU workloads especially).
+> - Progressive delivery (Argo Rollouts canary) for prompt and model changes, gated by the online evaluation metrics.
+> - Version **prompts, retrieval configs and model routing rules** in Git like code.
+
+---
+
+## 12. Key trade-offs
+
+| Decision | Why | Cost |
+|---|---|---|
+| Separate ingestion and serving planes | Isolation, independent scaling | More moving parts |
+| Three collections by modality | Tailored embeddings and tuning | Query fan-out, more indexes |
+| Hybrid search + RRF | Semantic and lexical strengths | Two indexes to keep consistent |
+| Cross-encoder reranking | Precision | Latency per query |
+| Supervisor multi-agent | Scales across domains | Routing errors, harder debugging |
+| LLM gateway | Portability, resilience | Another critical service |
+| Zanzibar-style permissions | Correct, auditable access | Relationship sync to maintain |
+| KEDA scale-to-zero | Low idle cost | Cold-start delay |
+| Semantic cache | Lower latency and cost | Staleness and leakage risk |
+
+---
+
+## 13. Common pitfalls
+
+1. **Skipping evaluation.** Tuning by feel causes silent regressions. Build the golden set early.
+2. **Shredding tables.** Keep them whole; embed a description, store the raw table.
+3. **Unscoped semantic cache.** It can leak data between users.
+4. **Too many tools per agent.** Split into sub-agents.
+5. **Ignoring ingestion freshness.** Define and monitor time-to-searchable.
+6. **Enforcing permissions only in the UI.** Enforce in retrieval and before prompt assembly.
+7. **Mixing embedding models in one index.** Version and re-index.
+8. **No fallback path.** Provider outages will happen.
+9. **Trusting retrieved text.** Treat documents as untrusted input (prompt injection).
+10. **Over-engineering on day one.** Add stages only when evaluation shows the need.
+
+---
+
+## 14. Suggested build order
+
+1. Parse, chunk, embed, hybrid retrieve, rerank, answer **with citations**.
+2. Golden set and offline evaluation in CI.
+3. Permissions (pre-filter and pre-prompt check).
+4. Observability and SLOs.
+5. LLM gateway with fallback.
+6. Semantic cache and query rewriting (measure the gain first).
+7. Multi-agent supervisor, MCP tools and human-approval flows.
+8. Multi-modal paths (tables, then images).
+
+## 15. Where to go next
+
+- **Graph RAG** for questions spanning entities and relationships
+- **Structured/SQL retrieval** for analytical questions
+- **Feedback loops** that convert thumbs-up/down into reranker or embedding fine-tuning data
+- **Long-context hybrids** that combine retrieval with large-window models
+- **Per-tenant indexes** or row-level isolation for strict multi-tenancy
+
+---
+
+## Conclusion
+
+An advanced RAG system is an ingestion pipeline, a multi-stage retrieval engine, an orchestration layer, a security model and an operations practice working together. Each component earns its place by fixing a real failure: layout-aware parsing because PDFs contain tables, hybrid search because users search for identifiers, reranking because vector top-k is noisy, permission checks because compliance demands them, and tracing plus evaluation because quality must be measured to be maintained.
+
+Start with the smallest slice that works and let evaluation tell you what to add next.
